@@ -1,9 +1,0 @@
-{
-    "manifest_version": 3,
-    "name": "Thumbs Up",
-    "description": "Provide a rating for website usability and design",
-    "version": "1.0",
-    "icons": {
-        
-    }
-}
