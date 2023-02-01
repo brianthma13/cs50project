@@ -8,6 +8,7 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.service import Service 
 from selenium.webdriver.common.by import By 
 from webdriver_manager.chrome import ChromeDriverManager
+import re
 
 
 def main():
@@ -54,19 +55,24 @@ def get_artists_coachella(url):
         
 
 def get_artists_edc(url):
-    # get request for artists names
     r = requests.get(url)
+    
+    # this function uses BeautifulSoup and Regular Expression to scrape a list of artists off the EDC lineup
     soup = BeautifulSoup(r.content, 'html.parser')
-    text = soup.findAll(text=True)
-    
-    with open('output.txt', 'w') as f:
-        for p in text:
-            f.write(p)
+    hrefs = soup.find_all('a', href = "#modal-lineup-artist")
 
-    # with open('output.html', 'w') as f:
-    #     f.write(r.text)
-    # artists = r.querySelectorAll("#ww > div.artistGrid > div:nth-child(1) > div > div > div.card_face.card_face--front.cursor-pointer > div.title")
-    # # notes edc data-artist-name or <a> text
-    
+    artist_list = []
+
+    for artist in hrefs:
+        temp = artist.get_text()
+        suffix = ' (.*)'
+        if re.search(suffix, temp) is not None:
+            temp = re.sub(suffix, '', temp)
+            artist_list.append(temp)
+        else:
+            artist_list.append(temp)
+
+    return artist_list
+      
 if __name__ == '__main__':
     main()
