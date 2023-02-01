@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import time 
-import pandas as pd 
 from selenium import webdriver 
 from selenium.webdriver import Chrome 
 from selenium.webdriver.chrome.service import Service 
@@ -27,7 +26,7 @@ def main():
 
 def get_artists_coachella(url):
     # leveraged code and process from https://www.zenrows.com/blog/scraping-javascript-rendered-web-pages#installing-the-requirements
-    # using selenium and pandas to extract javascript rendered webpages (Coachella)
+    # using selenium to extract javascript rendered webpages (Coachella)
     # initialize headless chrome web driver
         # define options
     options = webdriver.ChromeOptions()
