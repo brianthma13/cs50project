@@ -1,0 +1,15 @@
+Flask
+requirements
+bs4 - BeautifulSoup
+selenium - webdriver
+selenium.webdriver - Chrome
+selenium.webdriver.Chrome.service - Service
+selenium.webdriver.common.by - By
+webdriver_manager.chrome - ChromeDriverManager
+re
+random
+datetime
+
+spotipy
+spotipy.oauth2 - SpotifyOAuth
+decouple - config
