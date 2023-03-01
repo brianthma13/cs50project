@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <p>Select a festival below:</p>
+    <p class="lead">Generate a playlist on your Spotify account from festival lineups.</p>
+    <p class="lead">Choose from a list of festivals below</p>
+
     <form action="/generate" method="post">
         <select name='festival'>
             <option disabled selected value="Festival">Festival</option>
@@ -9,8 +11,9 @@
                 <option value="{{ festival }}">{{ festival }}</option>
             {% endfor %}
         </select>
-        <input type="submit" value="Generate" onclick="myfunc()">
-        <script>
+        <br>
+        <input class="btn btn-lg btn-light fw-bold border-white bg-white" type="submit" value="Make me a playlist!" onclick="myfunc()">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
             function myfunc() {
                     window.alert("This process may take a few minutes.");
                 }
