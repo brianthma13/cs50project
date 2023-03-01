@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <p>Select a festival below:</p>
+    <form action="/generate" method="post">
+        <select name='festival'>
+            <option disabled selected value="Festival">Festival</option>
+            {% for festival in festivals %}
+                <option value="{{ festival }}">{{ festival }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Generate" onclick="myfunc()">
+        <script>
+            function myfunc() {
+                    window.alert("This process may take a few minutes.");
+                }
+        </script>
+    </form>
+
+{% endblock %}

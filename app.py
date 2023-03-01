@@ -1,3 +1,5 @@
+from flask import Flask, render_template, request, redirect
+
 import requests
 from bs4 import BeautifulSoup
 import time 
@@ -9,16 +11,37 @@ from webdriver_manager.chrome import ChromeDriverManager
 import re
 import random
 import datetime
+from selenium.webdriver.support.ui import Select
 
 # API 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from decouple import config
 
+from jinja2 import Environment, PackageLoader, select_autoescape
+env = Environment(
+    loader=PackageLoader("app"),
+    autoescape=select_autoescape()
+)
+
+app = Flask(__name__)
+
+FESTIVALS = [
+    'Coachella',
+    'EDC Las Vegas'
+]
+
+@app.route("/")
+def index():
+    return render_template("index.html", festivals = FESTIVALS)
+
+@app.route("/generate", methods=['POST'])
 def main():
+    
     year = datetime.date.today().year
 
-    t_start = time.time()
+    # t_start = time.time()
+
     # create a spofy API client
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
         client_id=config("CLIENT_ID"), 
@@ -30,19 +53,25 @@ def main():
     # gets spotify user id
     user_id = sp.me()['id']
 
-    url = input("Enter url for festival lineup: ")
+    # x = input("Which festival do you want a playlist for? (COACHELLA, or EDCLV): ").lower()
 
-    if 'coachella' in url:
+    x = request.form.get("festival")
+    if x not in FESTIVALS:
+            return render_template("error.html", message="Invalid festival")
+
+    if x == 'Coachella':
         playlist_name = "Coachella " + str(year) + " Playlist"
+        url = "https://coachella.com/lineup"
         artist_list = get_artists_coachella(url)
-        # return artist_list
-    elif 'electricdaisycarnival' in url:
-        playlist_name = "EDC LV " + str(year) + " Playlist"        
+    elif x == 'EDC Las Vegas':
+        playlist_name = "EDC LV " + str(year) + " Playlist"    
+        url = "https://lasvegas.electricdaisycarnival.com/lineup"
         artist_list = get_artists_edc(url)
-        # return artist_list
-    else:
-        print("Please enter a working url.\n")
-        main()
+    elif x == 'Tomorrowland':
+        playlist_name = "Tomorrowland " + str(year) + " Playlist"
+        url = "https://www.tomorrowland.com/en/festival/line-up/stages/"
+        artist_list = get_artists_tml(url)
+    
 
     # return list of artist ids
     artist_ids = get_artists_id(artist_list, sp)
@@ -53,11 +82,12 @@ def main():
 
     add_songs(playlist_id,track_list, user_id, sp)
 
-    t_end = time.time()
-    t = t_end - t_start
+    # t_end = time.time()
+    # t = t_end - t_start
 
-    print(f"{playlist_name} created")
-    print(f"This process took {t:.2} seconds")
+    # print(f"{playlist_name} created")
+    # print(f"This process took {t:.2} seconds")
+    return render_template("success.html", x = x)
 
 def get_artists_coachella(url):
     # leveraged code and process from https://www.zenrows.com/blog/scraping-javascript-rendered-web-pages#installing-the-requirements
@@ -107,6 +137,11 @@ def get_artists_edc(url):
     artist_list = list(artist_set)
 
     return artist_list
+
+def get_artists_tml(url):
+    url = url
+    # proposed tomorrowland lineup playlist
+    return
 
 def get_artists_id(l, sp):
     # this function retreives artist spotify id 
