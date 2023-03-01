@@ -38,7 +38,7 @@ def index():
 
 @app.route("/generate", methods=['POST'])
 def main():
-    
+
     year = datetime.date.today().year
 
     # t_start = time.time()
