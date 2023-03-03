@@ -12,10 +12,31 @@
                     <option value="{{ festival }}">{{ festival }}</option>
                 {% endfor %}
             </select>
-        <br>
-        <input class="btn btn-lg btn-light fw-bold border-white bg-white submit" type="submit" value="Make me a playlist!" onclick="myFunction()">
+        </div>
+        <div class="d-flex gap-5 justify-content-center" style="padding: 15px">
+            <input class="btn btn-lg btn-light fw-bold border-white bg-white submit" type="submit" value="Make me a playlist!" onclick="myFunction()">
         </div>
     </form>
+    <br>
+    <p class="lead">
+        Or if you have a your own list of artists...
+    </p>
+    <form action="/generate" method="post">
+        <div class="d-flex gap-5 justify-content-center">
+            <textarea required id="artist_list" name="artist_list" maxlength="500" rows="10" cols="60">Enter a comma-separated list of your favorite artists here. Ex: John Legend, John Summit, John Mayer, John Denver...
+            </textarea>
+            
+            
+        </div>
+        <div class="d-flex gap-5 justify-content-center" style="padding: 15px">
+            <label for="playlist_name">Name your playlist (max 25): </label>
+            <input required id="playlist_name" name="playlist_name" maxlength="25">
+        </div>
+        <div class="d-flex gap-5 justify-content-center" style="padding: 15px">
+            <input class="btn btn-lg btn-light fw-bold border-white bg-white submit" type="submit" value="Make me a playlist!" onclick="myFunction()">
+        </div>
+    </form>
+
     <script>
         function myFunction() {
             alert('Processing... This may take a few minutes. Click "OK" to continue.');

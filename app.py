@@ -39,9 +39,8 @@ def index():
 @app.route("/generate", methods=['POST'])
 def main():
 
+    t_start = time.time()
     year = datetime.date.today().year
-
-    # t_start = time.time()
 
     # create a spofy API client
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -54,25 +53,30 @@ def main():
     # gets spotify user id
     user_id = sp.me()['id']
 
-    # x = input("Which festival do you want a playlist for? (COACHELLA, or EDCLV): ").lower()
+    #gets artist list from festival lineup
+    if request.form.get("festival"):
+        x = request.form.get("festival")
+        if x not in FESTIVALS:
+                return render_template("error.html", message="Invalid festival")
 
-    x = request.form.get("festival")
-    if x not in FESTIVALS:
-            return render_template("error.html", message="Invalid festival")
-
-    if x == 'Coachella':
-        playlist_name = "Coachella " + str(year) + " Playlist"
-        url = "https://coachella.com/lineup"
-        artist_list = get_artists_coachella(url)
-    elif x == 'EDC Las Vegas':
-        playlist_name = "EDC LV " + str(year) + " Playlist"    
-        url = "https://lasvegas.electricdaisycarnival.com/lineup"
-        artist_list = get_artists_edc(url)
-    elif x == 'Tomorrowland':
-        playlist_name = "Tomorrowland " + str(year) + " Playlist"
-        url = "https://www.tomorrowland.com/en/festival/line-up/stages/"
-        artist_list = get_artists_tml(url)
+        if x == 'Coachella':
+            playlist_name = "Coachella " + str(year) + " Playlist"
+            url = "https://coachella.com/lineup"
+            artist_list = get_artists_coachella(url)
+        elif x == 'EDC Las Vegas':
+            playlist_name = "EDC LV " + str(year) + " Playlist"    
+            url = "https://lasvegas.electricdaisycarnival.com/lineup"
+            artist_list = get_artists_edc(url)
+        elif x == 'Tomorrowland':
+            playlist_name = "Tomorrowland " + str(year) + " Playlist"
+            url = "https://www.tomorrowland.com/en/festival/line-up/stages/"
+            artist_list = get_artists_tml(url)
     
+    # gets user-generated artist list
+    if request.form.get("artist_list"):
+        x = request.form.get("artist_list").replace("\r", '').replace("\n",'')
+        artist_list = x.split(",")
+        playlist_name = request.form.get("playlist_name") 
 
     # return list of artist ids
     artist_ids = get_artists_id(artist_list, sp)
@@ -83,12 +87,11 @@ def main():
 
     add_songs(playlist_id,track_list, user_id, sp)
 
-    # t_end = time.time()
-    # t = t_end - t_start
+    t_end = time.time()
+    t = t_end - t_start
+    t = t/60
 
-    # print(f"{playlist_name} created")
-    # print(f"This process took {t:.2} seconds")
-    return render_template("success.html", x = x)
+    return render_template("success.html", x = playlist_name, t = round(t, 2))
 
 def get_artists_coachella(url):
     # leveraged code and process from https://www.zenrows.com/blog/scraping-javascript-rendered-web-pages#installing-the-requirements
@@ -151,6 +154,7 @@ def get_artists_id(l, sp):
     artist_ids = []
 
     for artist in l:
+        artist = artist.strip()
         results = sp.search(q = 'artist: ' + artist, type = 'artist')
         if results['artists']['items'][0]['name'].lower().replace(" ", "") == artist.lower().replace(" ", ""):
             artist_id = results['artists']['items'][0]['id']
@@ -158,18 +162,28 @@ def get_artists_id(l, sp):
     return artist_ids
 
 def get_track_list(artist_ids, sp):
-    # this function randomly retreives the URI for one of the top 5 tracks of an artist
+
     track_list = []
-    
-    for id in artist_ids:
-        top_tracks = sp.artist_top_tracks('spotify:artist:' + id)
-        x = len(top_tracks['tracks'])
-        if x > 0:
-            rand = random.randint(0,x-1)
-            rand_track = top_tracks['tracks'][rand]['uri']
-            track_list.append(rand_track)
-        else:
-            pass
+
+    # this part of the function randomly retreives a URI for one of the top 5 tracks of an artist (for festival lineups)
+    if request.form.get('festival'):
+        for id in artist_ids:
+            top_tracks = sp.artist_top_tracks('spotify:artist:' + id)
+            x = len(top_tracks['tracks'])
+            if x > 0:
+                rand = random.randint(0,x-1)
+                rand_track = top_tracks['tracks'][rand]['uri']
+                track_list.append(rand_track)
+            else:
+                pass
+
+    # this part of the function retrieves the URIs for the top 5 tracks of an artists (for custom playlist)
+    if request.form.get('artist_list'):
+        for id in artist_ids:
+            results = sp.artist_top_tracks('spotify:artist:' + id)
+            top_tracks = results['tracks']
+            for result in top_tracks:
+                track_list.append(result['uri'])
 
     return track_list
     
@@ -183,7 +197,7 @@ def make_playlist(uid, sp, plname):
 
 def add_songs(plid, tl, uid, sp):
     # this function adds track from track list tl to playlist with id pl
-    print(len(tl))
+    
     def group_it(tl):
         # this function splits tl into groups of 100 tracks
         for i in range(0, len(tl), 100):
