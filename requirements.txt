@@ -1,0 +1,17 @@
+flask import Flask, render_template, request, redirect
+requests
+bs4 import BeautifulSoup
+time 
+selenium import webdriver 
+selenium.webdriver import Chrome 
+selenium.webdriver.chrome.service import Service 
+selenium.webdriver.common.by import By 
+webdriver_manager.chrome import ChromeDriverManager
+re
+random
+datetime
+selenium.webdriver.support.ui import Select
+spotipy
+spotipy.oauth2 import SpotifyOAuth
+decouple import config
+jinja2 import Environment, PackageLoader, select_autoescape
