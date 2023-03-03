@@ -76,10 +76,14 @@ def main():
     if request.form.get("artist_list"):
         x = request.form.get("artist_list").replace("\r", '').replace("\n",'')
         artist_list = x.split(",")
-        playlist_name = request.form.get("playlist_name") 
+        playlist_name = request.form.get("playlist_name") + " Playlist"  
 
     # return list of artist ids
-    artist_ids = get_artists_id(artist_list, sp)
+    get_ids = get_artists_id(artist_list, sp)
+    artist_ids = get_ids[0]
+    not_found = get_ids[1]
+    if not_found == []:
+        not_found = "All artists found!"
 
     track_list = get_track_list(artist_ids, sp)
 
@@ -91,7 +95,7 @@ def main():
     t = t_end - t_start
     t = t/60
 
-    return render_template("success.html", x = playlist_name, t = round(t, 2))
+    return render_template("success.html", x = playlist_name, t = round(t, 2), not_found = not_found)
 
 def get_artists_coachella(url):
     # leveraged code and process from https://www.zenrows.com/blog/scraping-javascript-rendered-web-pages#installing-the-requirements
@@ -118,8 +122,18 @@ def get_artists_coachella(url):
     [artist_list.append(artist.text) for artist in artist_elements if artist.text not in artist_list]
 
     artist_list = list(set(artist_list))
-    
-    return artist_list
+
+    # clean up list
+    al_new = []
+    for i in artist_list:
+        if " + " in i:
+            i = i.split(" + ")
+            al_new.append(i[0])
+            al_new.append(i[1])
+        else:
+            al_new.append(i)
+
+    return al_new
         
 def get_artists_edc(url):
     r = requests.get(url)
@@ -152,6 +166,7 @@ def get_artists_id(l, sp):
     # this function assumes that each artist listed is the most popular one (first on list)
 
     artist_ids = []
+    not_found = []
 
     for artist in l:
         artist = artist.strip()
@@ -159,13 +174,15 @@ def get_artists_id(l, sp):
         if results['artists']['items'][0]['name'].lower().replace(" ", "") == artist.lower().replace(" ", ""):
             artist_id = results['artists']['items'][0]['id']
             artist_ids.append(artist_id)
-    return artist_ids
+        else:
+            not_found.append(artist)
+    return [artist_ids, not_found]
 
 def get_track_list(artist_ids, sp):
 
     track_list = []
 
-    # this part of the function randomly retreives a URI for one of the top 5 tracks of an artist (for festival lineups)
+    # this part of the function randomly retreives a URI for one of the top tracks of an artist (for festival lineups)
     if request.form.get('festival'):
         for id in artist_ids:
             top_tracks = sp.artist_top_tracks('spotify:artist:' + id)
@@ -177,7 +194,7 @@ def get_track_list(artist_ids, sp):
             else:
                 pass
 
-    # this part of the function retrieves the URIs for the top 5 tracks of an artists (for custom playlist)
+    # this part of the function retrieves the URIs for the top (up to 10) tracks of an artists (for custom playlist)
     if request.form.get('artist_list'):
         for id in artist_ids:
             results = sp.artist_top_tracks('spotify:artist:' + id)

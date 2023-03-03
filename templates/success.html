@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h2>Success! {{ x }} playlist generated. Check your Spotify playlists.</h2>
-    <p>This process took {{ t }} minutes.</p>
+    <h2>Success! "{{ x }}" generated. Check your Spotify playlists.</h2>
+    <p class="lead">This process took {{ t }} minutes.</p>
+    <p class="lead">Artists not found: {{ not_found }}</p>
     <form action="/" method="get">
         <input class="btn btn-lg btn-light fw-bold border-white bg-white" type="submit" value="Go Back">
     </form>
