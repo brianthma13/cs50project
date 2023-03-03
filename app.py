@@ -55,10 +55,7 @@ def main():
 
     #gets artist list from festival lineup
     if request.form.get("festival"):
-        x = request.form.get("festival")
-        if x not in FESTIVALS:
-                return render_template("error.html", message="Invalid festival")
-
+        x = request.form.get("festival") 
         if x == 'Coachella':
             playlist_name = "Coachella " + str(year) + " Playlist"
             url = "https://coachella.com/lineup"
@@ -71,12 +68,13 @@ def main():
             playlist_name = "Tomorrowland " + str(year) + " Playlist"
             url = "https://www.tomorrowland.com/en/festival/line-up/stages/"
             artist_list = get_artists_tml(url)
-    
     # gets user-generated artist list
-    if request.form.get("artist_list"):
+    elif request.form.get("artist_list"):
         x = request.form.get("artist_list").replace("\r", '').replace("\n",'')
         artist_list = x.split(",")
         playlist_name = request.form.get("playlist_name") + " Playlist"  
+    else:
+        return render_template("error.html", message="Invalid festival")
 
     # return list of artist ids
     get_ids = get_artists_id(artist_list, sp)

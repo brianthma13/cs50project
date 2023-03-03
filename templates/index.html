@@ -7,7 +7,7 @@
     <form action="/generate" method="post">
         <div class="d-flex gap-5 justify-content-center">
             <select name='festival' class="dropdown-menu dropdown-menu-dark position-static d-grid gap-1 p-2 rounded-3 mx-0 border-0 shadow w-220px">
-                <option disabled selected value="Festival">Festival</option>
+                <option disabled selected value="Festival">-</option>
                 {% for festival in festivals %}
                     <option value="{{ festival }}">{{ festival }}</option>
                 {% endfor %}
@@ -23,10 +23,8 @@
     </p>
     <form action="/generate" method="post">
         <div class="d-flex gap-5 justify-content-center">
-            <textarea required id="artist_list" name="artist_list" maxlength="500" rows="10" cols="60">Enter a comma-separated list of your favorite artists here. Ex: John Legend, John Summit, John Mayer, John Denver...
-            </textarea>
-            
-            
+            <textarea required id="artist_list" name="artist_list" maxlength="500" rows="10" 
+            cols="60">Enter a comma-separated list of your favorite artists here. Ex: John Legend,John Summit,John Mayer,John Denver...</textarea>
         </div>
         <div class="d-flex gap-5 justify-content-center" style="padding: 15px">
             <label for="playlist_name">Name your playlist (max 25): </label>
